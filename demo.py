@@ -19,6 +19,8 @@ canvas = util.draw_bodypose(canvas, candidate, subset)
 # detect hand
 hands_list = util.handDetect(candidate, subset, oriImg)
 
+util.save_joints_to_json(candidate, subset, 'demo.json')
+
 all_hand_peaks = []
 for x, y, w, is_left in hands_list:
     # cv2.rectangle(canvas, (x, y), (x+w, y+w), (0, 255, 0), 2, lineType=cv2.LINE_AA)

@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import json
 
 
 def padRightDownCorner(img, stride, padValue):
@@ -73,6 +74,27 @@ def draw_bodypose(canvas, candidate, subset):
     # plt.imsave("preview.jpg", canvas[:, :, [2, 1, 0]])
     # plt.imshow(canvas[:, :, [2, 1, 0]])
     return canvas
+
+# draw_bodypose() 함수를 이용해서 각 좌표값을 .JSON 파일로 저장하는 코드를 작성한다.
+
+def save_joints_to_json(candidate, subset, file_name):
+    limbSeq = [[2, 3], [2, 6], [3, 4], [4, 5], [6, 7], [7, 8], [2, 9], [9, 10],
+        [10, 11], [2, 12], [12, 13], [13, 14], [2, 1], [1, 15], [15, 17],
+        [1, 16], [16, 18], [3, 17], [6, 18]]
+    joint_points = []
+    for i in range(18):
+        for n in range(len(subset)):
+            index = int(subset[n][i])
+            if index == -1:
+                continue
+            x, y = candidate[index][0:2]
+            joint_points.append({"joint_index": i, "x": x, "y": y})
+
+    with open(file_name, 'w') as file:
+        json.dump(joint_points, file)
+
+
+
 
 def draw_handpose(canvas, all_hand_peaks, show_number=False):
     edges = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [0, 9], [9, 10], \
@@ -196,24 +218,3 @@ def npmax(array):
     i = arrayvalue.argmax()
     j = arrayindex[i]
     return i, j
-
-# get json representation
-import json
-
-def save_joints_to_json(candidate, subset, file_name):
-    limbSeq = [[2, 3], [2, 6], [3, 4], [4, 5], [6, 7], [7, 8], [2, 9], [9, 10],
-        [10, 11], [2, 12], [12, 13], [13, 14], [2, 1], [1, 15], [15, 17],
-        [1, 16], [16, 18], [3, 17], [6, 18]]
-    joint_points = []
-    for i in range(18):
-        for n in range(len(subset)):
-            index = int(subset[n][i])
-            if index == -1:
-                continue
-            x, y = candidate[index][0:2]
-            joint_points.append({"joint_index": i, "x": x, "y": y})
-
-    data = {"joints": joint_points, "limbs": limbSeq}
-
-    with open(file_name, 'w') as file:
-        json.dump(data, file, indent=4)
